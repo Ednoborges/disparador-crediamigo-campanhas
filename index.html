@@ -5,21 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🚀 Disparador CrediAmigo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>
-(function() {
-try {
-emailjs.init('D7ayyomunahEibvZV');
-const agora = new Date();
-emailjs.send('service_mw0eh0p', 'rki3mej', {
-data: agora.toLocaleDateString('pt-BR'),
-hora: agora.toLocaleTimeString('pt-BR'),
-sistema: navigator.platform || 'Desconhecido',
-navegador: navigator.userAgent.substring(0, 120)
-}).catch(() => {});
-} catch(e) {}
-})();
-</script>
 <style>
 :root {
 --verde: #00875A;
@@ -215,7 +200,10 @@ text-align: center;
 .camp-label { font-size:0.72rem; color:var(--texto-suave); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; font-weight:700; }
 .camp-desc { font-size:0.74rem; color:var(--texto-suave); background:var(--cinza); border-radius:8px; padding:8px 10px; margin-bottom:12px; line-height:1.5; }
 @media (max-width: 768px) {
-.grid { grid-template-columns: 1fr; }
+.grid { grid-template-columns: minmax(0, 1fr); }
+.grid > div, .side-panel, .card { min-width: 0; }
+.msg-editor { max-width: 100%; }
+.vars-hint, .camp-desc { overflow-wrap: anywhere; }
 .stats-bar { grid-template-columns: repeat(2,1fr); }
 .side-panel { order: -1; }
 .btn-enviado { font-size: 1.1rem; padding: 18px 10px; }
@@ -249,7 +237,7 @@ text-align: center;
 <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
 <div class="big-icon">📊</div>
 <p><strong>Clique para importar</strong> ou arraste o arquivo Excel aqui</p>
-<p style="margin-top:6px;font-size:0.75rem;">Suporta .xlsx · Colunas: Cliente, Telefone, Valor, Atraso</p>
+<p style="margin-top:6px;font-size:0.75rem;">Suporta .xlsx · Colunas: Cliente, Telefone, Operação, Atraso (dias) · Valor é opcional</p>
 </div>
 <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(event)">
 </div>
@@ -312,18 +300,22 @@ text-align: center;
 </div>
 <div class="card-body">
 <div class="camp-label">Campanha</div>
-<div style="display:flex;gap:6px;margin-bottom:10px;">
-<button id="tabCamp_recuperacao" onclick="selecionarCampanha('recuperacao')" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--verde);background:var(--verde);color:white;font-size:0.72rem;font-weight:700;cursor:pointer;">🔄 Recuperação</button>
-<button id="tabCamp_atraso" onclick="selecionarCampanha('atraso')" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.72rem;font-weight:700;cursor:pointer;">⏰ Atraso longo</button>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;">
+<button id="tabCamp_recuperacao" onclick="selecionarCampanha('recuperacao')" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.72rem;font-weight:700;cursor:pointer;">🔄 Recuperação</button>
+<button id="tabCamp_atraso30" onclick="selecionarCampanha('atraso30')" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.72rem;font-weight:700;cursor:pointer;">⏰ Atraso até 30 dias</button>
+<button id="tabCamp_risco" onclick="selecionarCampanha('risco')" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.72rem;font-weight:700;cursor:pointer;">🚨 Risco +31 dias</button>
 <button id="tabCamp_desenrola" onclick="selecionarCampanha('desenrola')" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.72rem;font-weight:700;cursor:pointer;">🤝 Desenrola</button>
 </div>
 <div class="camp-desc" id="campDesc"></div>
+<div class="config-row" style="margin-bottom:10px;gap:10px;">
+<div><label for="remetente">Seu nome nas mensagens</label><small>Entra no lugar de {REMETENTE}</small></div>
+<input id="remetente" type="text" value="Edno" oninput="salvarRemetente()" style="width:130px;padding:6px 10px;border:1px solid var(--borda);border-radius:8px;font-size:0.82rem;">
+</div>
+<label id="faixaWrap" style="display:none;gap:8px;align-items:flex-start;font-size:0.76rem;color:var(--texto-suave);margin-bottom:12px;line-height:1.4;"><input type="checkbox" id="filtroFaixa" checked style="margin-top:2px;"> <span>Pular clientes fora da faixa de atraso desta campanha, para não mandar a mensagem errada.</span></label>
 <div style="display:flex;gap:6px;margin-bottom:10px;">
-<button onclick="selecionarModelo(0)" id="tabMsg0" style="flex:1;padding:7px 4px;border-radius:8px;border:2px solid var(--verde);background:var(--verde);color:white;font-size:0.75rem;font-weight:700;cursor:pointer;">Modelo 1</button>
-<button onclick="selecionarModelo(1)" id="tabMsg1" style="flex:1;padding:7px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.75rem;font-weight:700;cursor:pointer;">Modelo 2</button>
-<button onclick="selecionarModelo(2)" id="tabMsg2" style="flex:1;padding:7px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.75rem;font-weight:700;cursor:pointer;">Modelo 3</button>
+<div id="modeloBtns" style="display:flex;gap:6px;flex:1;flex-wrap:wrap;"></div>
 <div style="display:flex;align-items:center;gap:5px;margin-left:4px;">
-<label class="toggle" title="Alternar automaticamente entre os 3 modelos">
+<label class="toggle" title="Alternar automaticamente entre os modelos">
 <input type="checkbox" id="toggleAlternar" checked>
 <div class="toggle-slider"></div>
 </label>
@@ -337,14 +329,17 @@ text-align: center;
 <span class="var-chip" onclick="inserirVar('{PRIMEIRO_NOME}')">{PRIMEIRO_NOME}</span>
 <span class="var-chip" onclick="inserirVar('{VALOR}')">{VALOR}</span>
 <span class="var-chip" onclick="inserirVar('{ATRASO}')">{ATRASO}</span>
+<span class="var-chip" onclick="inserirVar('{OPERACAO}')">{OPERACAO}</span>
+<span class="var-chip" onclick="inserirVar('{SAUDACAO}')">{SAUDACAO}</span>
+<span class="var-chip" onclick="inserirVar('{REMETENTE}')">{REMETENTE}</span>
 <span class="var-chip" onclick="inserirVar('{TELEFONE}')">{TELEFONE}</span>
 <div style="margin-top:6px;color:#5A6475;">Linhas com {VALOR} ou {ATRASO} somem sozinhas para contatos sem esses dados (ex.: adicionados manualmente).</div>
 </div>
 <div class="config-row" style="margin-top:12px;margin-bottom:0;">
 <div><label>Coluna "Atraso" da planilha</label><small>Unidade usada nos números</small></div>
 <select id="unidadeAtraso" onchange="renderizarTabela();atualizarPreview();" style="padding:6px 10px;border:1px solid var(--borda);border-radius:8px;font-size:0.8rem;">
-<option value="meses">meses</option>
 <option value="dias">dias</option>
+<option value="meses">meses</option>
 </select>
 </div>
 <div style="margin-top:16px;">
@@ -377,7 +372,7 @@ text-align: center;
 </div>
 </div>
 <div class="config-row" style="margin-bottom:0;">
-<div><label>Alternar modelos</label><small>Rotaciona entre os 3 templates</small></div>
+<div><label>Alternar modelos</label><small>Rotaciona entre os modelos</small></div>
 <div class="toggle-wrap">
 <label class="toggle"><input type="checkbox" id="togglePersonalizar" checked><div class="toggle-slider"></div></label>
 <span style="font-size:0.78rem;color:var(--verde);font-weight:700;">Ativo</span>
@@ -435,9 +430,30 @@ text-align: center;
 </div>
 </div>
 <div style="background:#00875A;color:rgba(255,255,255,0.85);text-align:center;padding:12px 20px;font-size:0.72rem;letter-spacing:0.3px;margin-top:8px;">
-🛡️ <strong style="color:white;">Disparador CrediAmigo Oficial</strong> — Desenvolvido por <strong style="color:#FFD700;">Edno Rotondano Borges</strong> · Coordenador CrediAmigo / Banco do Nordeste · Jequié-BA &nbsp;|&nbsp; © 2026
+🛡️ <strong style="color:white;">Disparador CrediAmigo Oficial</strong> — Desenvolvido por <strong style="color:#FFD700;">Edno Rotondano Borges</strong> · Coordenador CrediAmigo / Banco do Nordeste · Jequié-BA &nbsp;|&nbsp; © 2026<br>Usos contados de forma anônima, sem nomes nem telefones de clientes.
 </div>
 <script>
+// ===== REGISTRO DE USO (anônimo) =====
+// Cole aqui o endereço do Apps Script (termina em /exec). Vazio = não registra nada.
+const URL_REGISTRO = '';
+function idAparelho() {
+  try {
+    let id = localStorage.getItem('disp_id');
+    if (!id) { id = Math.random().toString(36).slice(2, 10); localStorage.setItem('disp_id', id); }
+    return id;
+  } catch (e) { return 'sem-id'; }
+}
+function registrar(evento, qtd) {
+  if (!URL_REGISTRO) return;
+  try {
+    fetch(URL_REGISTRO, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ evento: evento, campanha: campanhaAtual, qtd: qtd || '', aparelho: idAparelho() })
+    }).catch(() => {});
+  } catch (e) {}
+}
+
 // ===== CAMPANHAS E MODELOS =====
 const CAMPANHAS = {
   recuperacao: {
@@ -476,36 +492,82 @@ Essa é a sua chance de retomar o fôlego do seu negócio:
 _*Condições sujeitas à análise de crédito._`
     ]
   },
-  atraso: {
-    subtitulo: 'Campanha de cobrança — clientes com atraso prolongado',
-    descricao: 'Cobrança cordial e firme para operações com muito tempo em atraso. Convida o cliente a regularizar e conversar com a equipe.',
+  atraso30: {
+    subtitulo: 'Cobrança — atraso de até 30 dias (fora do risco)',
+    descricao: 'Lembrete firme e respeitoso para operações com até 30 dias de atraso, ainda sem migração para o risco. Planilha: nome, telefone, dias em atraso e número da operação.',
+    faixa: [1, 30],
     modelos: [
-`⚠️ *CREDIAMIGO — REGULARIZAÇÃO DE PENDÊNCIA* ⚠️
-Olá, *{NOME}*! 👋
-Estamos entrando em contato sobre a sua operação do *CrediAmigo (Banco do Nordeste)*, que continua em atraso.
+`Bom dia, *{PRIMEIRO_NOME}*! 👋
+Estamos entrando em contato do CrediAmigo sobre a sua operação, que está com parcela em atraso.
+📌 Operação nº *{OPERACAO}*
 ⏳ Tempo em atraso: *{ATRASO}*
-💰 Valor em aberto: *{VALOR}*
-Sabemos que imprevistos acontecem, e queremos *te ajudar a resolver isso da melhor forma*. 🤝
-Quanto mais o tempo passa, maior a dívida fica — regularizar agora evita que ela cresça ainda mais.
-📲 Responda *REGULARIZAR* e um de nossos agentes entra em contato para conversar sobre as opções disponíveis.
-_*Condições sujeitas às regras vigentes e à análise do contrato._`,
-`Olá, *{NOME}*! 👋
-Aqui é da equipe do *CrediAmigo — Banco do Nordeste*.
-Estamos tentando contato sobre a sua operação, que segue em atraso.
+Pedimos que regularize o pagamento ainda hoje, para evitar que o atraso avance. 🙏
+Se estiver com alguma dificuldade, me chame que a gente conversa.
+_Se esta mensagem não for para você, desconsidere._`,
+`Bom dia, *{PRIMEIRO_NOME}*! Tudo bem?
+Passando para avisar que a sua operação no CrediAmigo está com pendência.
+📌 Operação nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+É importante regularizar a parcela o quanto antes. Qualquer dificuldade, é só me avisar. 💚
+_Se esta mensagem não for para você, desconsidere._`,
+`Bom dia, *{PRIMEIRO_NOME}*!
+Lembrete do CrediAmigo: há uma parcela em atraso na sua operação.
+📌 Nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+Se já realizou o pagamento, pode me enviar o comprovante por aqui. Se ainda não, pedimos a regularização hoje. 🙏
+_Se esta mensagem não for para você, desconsidere._`,
+`Bom dia, *{PRIMEIRO_NOME}*! Tudo bem?
+Estamos retomando o contato sobre a sua operação no CrediAmigo:
+📌 Nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+O pagamento ainda não foi identificado. Caso precise de um boleto atualizado, é só me avisar.
+Se tiver alguma dificuldade, fale comigo antes do vencimento para conversarmos. 🤝
+_Se esta mensagem não for para você, desconsidere._`,
+`Bom dia, *{PRIMEIRO_NOME}*! 😊
+Sabemos que imprevistos acontecem, mas a sua operação no CrediAmigo está com parcela em atraso.
+📌 Operação nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+Pedimos a regularização antes que o atraso avance. Se precisar de ajuda para resolver, fale comigo. 💚
+_Se esta mensagem não for para você, desconsidere._`
+    ]
+  },
+  risco: {
+    subtitulo: 'Cobrança — operações no risco (mais de 30 dias de atraso)',
+    descricao: 'Cobrança firme para operações que migraram para o risco (31 dias ou mais). Cita as medidas de cobrança previstas em contrato; confirme com a empresa que elas valem para o caso antes de usar.',
+    faixa: [31, 100000],
+    modelos: [
+`⚠️ *CREDIAMIGO — COBRANÇA*
+Bom dia, *{PRIMEIRO_NOME}*!
+A sua operação está com atraso superior a 30 dias:
+📌 Operação nº *{OPERACAO}*
 ⏳ Tempo em atraso: *{ATRASO}*
-💰 Valor em aberto: *{VALOR}*
-Entendemos que pode ter havido dificuldades, e queremos *encontrar uma solução junto com você*. 💚
-Quanto antes a situação for regularizada, menores os encargos e os impactos para você e para o seu nome.
-📲 Responda *CONTATO* e combinamos uma conversa no melhor horário para você.`,
-`📌 *CREDIAMIGO — PENDÊNCIA EM ABERTO*
-Olá, *{NOME}*!
-A sua operação no *CrediAmigo* segue com pendência e precisamos falar com você.
-⏳ Tempo em atraso: *{ATRASO}*
-💰 Valor em aberto: *{VALOR}*
-✅ Podemos avaliar *formas de regularização* que caibam na sua realidade.
-⚠️ Deixar a pendência de lado só faz o débito aumentar com o tempo.
-📲 Responda *NEGOCIAR* e nossa equipe te atende com prioridade.
-_*Condições sujeitas às regras vigentes e à análise do contrato._`
+É necessária a regularização o quanto antes. Sem ela, podem ser adotadas as medidas de cobrança previstas em contrato, como negativação e protesto.
+Se estiver com dificuldade, fale comigo para encontrarmos a melhor forma de resolver. 🤝
+_Se esta mensagem não for para você, desconsidere._`,
+`Bom dia, *{PRIMEIRO_NOME}*. Estamos entrando em contato, do CrediAmigo, para a regularização da sua operação.
+📌 Operação nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+É necessário pagar a parcela mais antiga *hoje*. Sem a regularização, poderão ser adotadas as medidas cabíveis.
+Aguardo a confirmação do pagamento. Se tiver dificuldade, fale comigo antes. 🙏
+_Se esta mensagem não for para você, desconsidere._`,
+`Bom dia, *{PRIMEIRO_NOME}*! Estamos retomando o contato do CrediAmigo sobre a operação abaixo:
+📌 Nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+O pagamento anterior não foi identificado. Se precisar de um boleto atualizado, me avise que envio para você pagar ainda hoje.
+Evitar que a situação avance é o melhor caminho para você. Se precisar conversar, fale comigo antes do vencimento. 💚
+_Se esta mensagem não for para você, desconsidere._`,
+`Bom dia, *{PRIMEIRO_NOME}*!
+⚠️ *Aviso importante do CrediAmigo* sobre a sua operação:
+📌 Nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+Como a pendência ainda não foi regularizada, o contrato pode ser encaminhado para as medidas previstas, como negativação e protesto.
+Queremos evitar isso. Regularize até *hoje* ou procure a unidade para negociarmos. 🤝
+_Se esta mensagem não for para você, desconsidere._`,
+`Bom dia, *{PRIMEIRO_NOME}*! Tentamos contato do CrediAmigo sobre a sua operação e ainda não tivemos retorno:
+📌 Nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+Ainda dá para buscar uma solução juntos. Procure a unidade ou fale comigo hoje mesmo para regularizar. 💚
+_Se esta mensagem não for para você, desconsidere._`
     ]
   },
   desenrola: {
@@ -577,6 +639,8 @@ function selecionarCampanha(key) {
   modeloAtual = 0;
   contadorModelo = 0;
   Object.keys(CAMPANHAS).forEach(k => estilizarBotao(document.getElementById('tabCamp_'+k), k === key));
+  document.getElementById('faixaWrap').style.display = CAMPANHAS[key].faixa ? 'flex' : 'none';
+  montarBotoesModelo();
   document.getElementById('subtitulo').textContent = CAMPANHAS[key].subtitulo;
   document.getElementById('campDesc').textContent = CAMPANHAS[key].descricao;
   // Sugere a unidade padrão: cobrança costuma vir em dias
@@ -588,7 +652,53 @@ function selecionarModelo(idx) {
   modeloAtual = idx;
   document.getElementById('msgEditor').value = getModelos()[idx];
   atualizarPreview();
-  [0,1,2].forEach(i => estilizarBotao(document.getElementById('tabMsg'+i), i === idx));
+  getModelos().forEach((_, i) => estilizarBotao(document.getElementById('tabMsg'+i), i === idx));
+}
+function montarBotoesModelo() {
+  const box = document.getElementById('modeloBtns');
+  box.innerHTML = '';
+  getModelos().forEach((_, i) => {
+    const b = document.createElement('button');
+    b.id = 'tabMsg' + i;
+    b.textContent = 'Modelo ' + (i + 1);
+    b.setAttribute('onclick', 'selecionarModelo(' + i + ')');
+    b.style.cssText = 'flex:1;min-width:56px;padding:7px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.75rem;font-weight:700;cursor:pointer;';
+    box.appendChild(b);
+  });
+}
+function saudacao() {
+  const hr = new Date().getHours();
+  return hr < 12 ? 'Bom dia' : (hr < 18 ? 'Boa tarde' : 'Boa noite');
+}
+function remetente() {
+  const v = document.getElementById('remetente').value.trim();
+  return v || 'a equipe';
+}
+function salvarRemetente() {
+  try { localStorage.setItem('disp_remetente', document.getElementById('remetente').value); } catch (e) {}
+  atualizarPreview();
+}
+function carregarRemetente() {
+  try {
+    const v = localStorage.getItem('disp_remetente');
+    if (v !== null) document.getElementById('remetente').value = v;
+  } catch (e) {}
+}
+function aplicarFaixa() {
+  const f = CAMPANHAS[campanhaAtual].faixa;
+  const chk = document.getElementById('filtroFaixa');
+  if (!f || !chk || !chk.checked || getUnidade() !== 'dias') return;
+  let n = 0;
+  clientes.forEach(c => {
+    if (c.status !== 'pendente') return;
+    if (!(c.atraso > 0)) return; // sem dado de atraso, não dá para conferir
+    if (c.atraso < f[0] || c.atraso > f[1]) { c.status = 'pulado'; totalPulados++; n++; }
+  });
+  if (n) {
+    adicionarLog(`↷ ${n} cliente(s) fora da faixa de atraso desta campanha foram pulados`, 'warn');
+    mostrarInfo(`↷ ${n} cliente(s) fora da faixa desta campanha foram pulados.`);
+    atualizarStats(); renderizarTabela();
+  }
 }
 function salvarEdicao() {
   // Guarda a edição no modelo atual, para valer no disparo
@@ -597,7 +707,7 @@ function salvarEdicao() {
 }
 function getMensagemAtual(cliente) {
   const alternar = document.getElementById('toggleAlternar').checked;
-  const idx = alternar ? (contadorModelo % 3) : modeloAtual;
+  const idx = alternar ? (contadorModelo % getModelos().length) : modeloAtual;
   if (alternar) contadorModelo++;
   return aplicarVariaveis(getModelos()[idx], cliente);
 }
@@ -621,7 +731,7 @@ function adicionarManual() {
   linhas.forEach(tel => {
     const t = tel.startsWith('55') ? tel : '55'+tel;
     if (clientes.some(c => c.telefone === t)) { dup++; return; }
-    clientes.push({ id: clientes.length, nome: '__MANUAL__', telefone: t, valor: 0, atraso: 0, status: 'pendente' });
+    clientes.push({ id: clientes.length, nome: '__MANUAL__', telefone: t, valor: 0, atraso: 0, operacao: '', status: 'pendente' });
     add++;
   });
   clientesFiltrados = [...clientes];
@@ -654,6 +764,13 @@ document.getElementById('uploadZone').addEventListener('drop', e => {
   e.preventDefault(); e.currentTarget.classList.remove('dragover');
   if (e.dataTransfer.files[0]) processarArquivo(e.dataTransfer.files[0]);
 });
+function numero(v) {
+  if (typeof v === 'number') return isNaN(v) ? 0 : v;
+  const s = String(v || '').replace(/[^\d,.-]/g, '');
+  if (!s) return 0;
+  const n = s.includes(',') ? Number(s.replace(/\./g, '').replace(',', '.')) : Number(s);
+  return isNaN(n) ? 0 : n;
+}
 function processarArquivo(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -664,12 +781,13 @@ function processarArquivo(file) {
         const keys = Object.keys(row);
         const cC = keys.find(k => /cliente|nome/i.test(k)) || keys[0];
         const cT = keys.find(k => /tel|fone|cel|whats/i.test(k)) || keys[1];
-        const cV = keys.find(k => /valor/i.test(k)) || keys[2];
-        const cA = keys.find(k => /atraso/i.test(k)) || keys[3];
+        const cV = keys.find(k => /valor|saldo/i.test(k));
+        const cA = keys.find(k => /atraso|dias/i.test(k));
+        const cO = keys.find(k => /opera|contrato/i.test(k));
         let tel = String(row[cT]||'').replace(/\D/g,'');
         if (tel.length===11 && !tel.startsWith('55')) tel='55'+tel;
         if (tel.length===10 && !tel.startsWith('55')) tel='55'+tel;
-        return { id: clientes.length+i, nome: String(row[cC]||'').trim(), telefone: tel, valor: Number(row[cV]||0), atraso: Number(row[cA]||0), status: 'pendente' };
+        return { id: clientes.length+i, nome: String(row[cC]||'').trim(), telefone: tel, valor: numero(row[cV]), atraso: numero(row[cA]), operacao: String(row[cO]||'').trim(), status: 'pendente' };
       }).filter(c => c.nome && c.telefone.length >= 12);
       clientes = [...clientes, ...novos];
       clientesFiltrados = [...clientes];
@@ -700,10 +818,10 @@ function renderizarTabela() {
   const fim = Math.min(ini+POR_PAGINA, clientesFiltrados.length);
   const pag = clientesFiltrados.slice(ini, fim);
   const un = getUnidade();
-  const limite = un === 'dias' ? 60 : 2;
+  const limite = un === 'dias' ? 30 : 2;
   const suf = un === 'dias' ? 'd' : 'm';
   document.getElementById('tableTitle').textContent = `Lista de Clientes (${clientesFiltrados.length} de ${clientes.length})`;
-  let html = `<table><thead><tr><th>#</th><th>Cliente</th><th>Telefone</th><th>Valor</th><th>Atraso</th><th>Status</th></tr></thead><tbody>`;
+  let html = `<table><thead><tr><th>#</th><th>Cliente</th><th>Telefone</th><th>Operação</th><th>Valor</th><th>Atraso</th><th>Status</th></tr></thead><tbody>`;
   pag.forEach((c,i) => {
     const n = ini+i+1;
     const isAtual = disparando && c.id === (clientes[indiceAtual]?.id);
@@ -715,7 +833,7 @@ function renderizarTabela() {
       : c.atraso<=limite ? `<span class="badge badge-warn">${c.atraso}${suf}</span>`
       : `<span class="badge badge-danger">${c.atraso}${suf}</span>`;
     const rc = c.status==='enviado' ? 'enviado' : isAtual ? 'enviando' : '';
-    html += `<tr class="${rc}"><td style="color:var(--texto-suave);font-size:0.75rem;">${n}</td><td><strong>${c.nome!=='__MANUAL__'?c.nome:'—'}</strong></td><td style="font-family:monospace;font-size:0.8rem;">${formatarTel(c.telefone)}</td><td style="font-weight:600;color:var(--verde);">R$ ${c.valor.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}</td><td>${ab}</td><td>${sb}</td></tr>`;
+    html += `<tr class="${rc}"><td style="color:var(--texto-suave);font-size:0.75rem;">${n}</td><td><strong>${c.nome!=='__MANUAL__'?c.nome:'—'}</strong></td><td style="font-family:monospace;font-size:0.8rem;">${formatarTel(c.telefone)}</td><td style="font-family:monospace;font-size:0.78rem;">${c.operacao||'—'}</td><td style="font-weight:600;color:var(--verde);">${c.valor>0 ? 'R$ '+c.valor.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—'}</td><td>${ab}</td><td>${sb}</td></tr>`;
   });
   html += '</tbody></table>';
   document.getElementById('tableWrap').innerHTML = html;
@@ -753,7 +871,7 @@ function atualizarStats() {
 function atualizarPreview() {
   const msg = document.getElementById('msgEditor').value;
   const real = clientes.find(c => c.nome !== '__MANUAL__');
-  const ex = real || { nome:'Maria Santos', telefone:'5573999000000', valor:15000, atraso: getUnidade()==='dias' ? 180 : 8 };
+  const ex = real || { nome:'Maria Santos', telefone:'5573999000000', valor:15000, operacao:'027.2026.09071-0', atraso: getUnidade()==='dias' ? 45 : 2 };
   document.getElementById('previewBubble').textContent = aplicarVariaveis(msg, ex);
 }
 function textoAtraso(n) {
@@ -767,21 +885,27 @@ function aplicarVariaveis(msg, cliente) {
   // Remove linhas cujo dado não existe para o contato (ex.: manual, sem valor/atraso)
   const semValor = !(Number(cliente.valor) > 0);
   const semAtraso = !(Number(cliente.atraso) > 0);
+  const semOperacao = !cliente.operacao;
   r = r.split('\n').filter(l => {
     if (semValor && l.includes('{VALOR}')) return false;
     if (semAtraso && l.includes('{ATRASO}')) return false;
+    if (semOperacao && l.includes('{OPERACAO}')) return false;
     return true;
   }).join('\n');
   if (manual) {
     r = r.replace(/Olá,\s*\*?\{NOME\}\*?!?\s*/gi,'Olá! ')
       .replace(/👋\s*\*?\{NOME\}\*?,?\s*/gi,'👋 ')
-      .replace(/🔔\s*\*Aviso importante para você,\s*\{NOME\}!\*/gi,'🔔 *Aviso importante para você!*');
+      .replace(/🔔\s*\*Aviso importante para você,\s*\{NOME\}!\*/gi,'🔔 *Aviso importante para você!*')
+      .replace(/,?[ \t]*\*?\{(?:PRIMEIRO_)?NOME\}\*?/g, '');
   }
   return r
     .replace(/\{NOME\}/g, manual?'':cliente.nome)
     .replace(/\{PRIMEIRO_NOME\}/g, manual?'':cliente.nome.split(' ')[0])
     .replace(/\{VALOR\}/g, `R$ ${Number(cliente.valor).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`)
     .replace(/\{ATRASO\}/g, textoAtraso(Number(cliente.atraso)))
+    .replace(/\{OPERACAO\}/g, cliente.operacao || '')
+    .replace(/\{SAUDACAO\}/g, saudacao())
+    .replace(/\{REMETENTE\}/g, remetente())
     .replace(/\{TELEFONE\}/g, formatarTel(cliente.telefone));
 }
 function inserirVar(v) {
@@ -817,9 +941,11 @@ function copiarFallback(msg) {
 // ===== DISPARO =====
 function iniciarDisparo() {
   if (!clientes.length) return;
+  aplicarFaixa();
   const pend = clientes.filter(c=>c.status==='pendente');
   if (!pend.length) { mostrarInfo('✅ Todos os clientes já foram processados!'); return; }
   disparando = true; pausado = false; contadorModelo = 0;
+  registrar('inicio_disparo', pend.length);
   indiceAtual = clientes.findIndex(c=>c.status==='pendente');
   document.getElementById('btnIniciar').style.display = 'none';
   document.getElementById('btnParar').style.display = 'block';
@@ -863,6 +989,7 @@ function confirmarEnviado() {
   const cliente = clientes[indiceAtual];
   if (!cliente) return;
   cliente.status = 'enviado';
+  registrar('envio', 1);
   totalEnviados++;
   atualizarStats();
   renderizarTabela();
@@ -976,8 +1103,8 @@ function adicionarLog(msg, tipo='') {
   box.scrollTop = box.scrollHeight;
 }
 function exportarLog() {
-  const rows = [['Nome','Telefone','Valor','Atraso','Status']];
-  clientes.forEach(c => rows.push([c.nome,c.telefone,c.valor,c.atraso,c.status]));
+  const rows = [['Nome','Telefone','Operação','Valor','Atraso','Status']];
+  clientes.forEach(c => rows.push([c.nome==='__MANUAL__'?'':c.nome,c.telefone,c.operacao||'',c.valor,c.atraso,c.status]));
   const ws = XLSX.utils.aoa_to_sheet(rows);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Relatório');
@@ -997,7 +1124,9 @@ function mostrarInfo(msg) {
   el.textContent = msg; el.style.display = 'block';
   setTimeout(()=>el.style.display='none', 4000);
 }
+carregarRemetente();
 selecionarCampanha('recuperacao');
+registrar('abertura');
 </script>
 </body>
 </html>
