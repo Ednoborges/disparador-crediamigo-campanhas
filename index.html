@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🚀 Disparador CrediAmigo</title>
+<title>Disparador de Mensagens</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root {
---verde: #00875A;
---verde-escuro: #005C3B;
---verde-claro: #E3F5EC;
+--verde: #2456A4;
+--verde-escuro: #16345F;
+--verde-claro: #E6EEF9;
 --amarelo: #F5A623;
 --vermelho: #D0021B;
 --cinza: #F4F6F8;
@@ -22,10 +22,10 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: 'Segoe UI', system-ui, sans-serif; background: #EBF0F5; color: var(--texto); min-height: 100vh; }
 .header {
-background: linear-gradient(135deg, var(--verde-escuro) 0%, var(--verde) 100%);
+background: linear-gradient(135deg, #1F2429 0%, #343B43 100%);
 color: white; padding: 18px 28px;
 display: flex; align-items: center; gap: 14px;
-box-shadow: 0 3px 15px rgba(0,87,58,0.35);
+box-shadow: 0 3px 15px rgba(31,36,41,0.35);
 }
 .header-logo { width:46px; height:46px; background:rgba(255,255,255,0.18); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; }
 .header h1 { font-size:1.25rem; font-weight:700; }
@@ -102,8 +102,8 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:16px;
 .toggle-slider::before { content:''; position:absolute; width:16px; height:16px; left:3px; top:3px; background:white; border-radius:50%; transition:transform 0.2s; }
 .toggle input:checked + .toggle-slider { background:var(--verde); }
 .toggle input:checked + .toggle-slider::before { transform:translateX(18px); }
-.btn-primary { width:100%; padding:14px; background:linear-gradient(135deg,var(--verde),var(--verde-escuro)); color:white; border:none; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s; box-shadow:0 4px 15px rgba(0,87,58,0.3); }
-.btn-primary:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,87,58,0.4); }
+.btn-primary { width:100%; padding:14px; background:var(--verde); color:white; border:none; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s; box-shadow:0 4px 15px rgba(31,36,41,0.3); }
+.btn-primary:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 20px rgba(31,36,41,0.4); }
 .btn-primary:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
 .btn-secondary { width:100%; padding:10px; background:white; color:var(--texto); border:1px solid var(--borda); border-radius:10px; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s; margin-top:8px; }
 .btn-secondary:hover { background:var(--cinza); }
@@ -112,7 +112,7 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:16px;
 /* PAINEL DE AÇÃO CENTRAL — aparece durante o disparo */
 .action-panel {
 display: none;
-background: #F0FBF6;
+background: #EEF4FC;
 border: 2px solid var(--verde-claro);
 border-radius: 14px;
 padding: 16px;
@@ -141,18 +141,18 @@ gap: 10px;
 .btn-enviado {
 flex: 2;
 padding: 16px 10px;
-background: linear-gradient(135deg, var(--verde), var(--verde-escuro));
+background: var(--verde);
 color: white;
 border: none;
 border-radius: 10px;
 font-size: 1.05rem;
 font-weight: 800;
 cursor: pointer;
-box-shadow: 0 4px 15px rgba(0,87,58,0.35);
+box-shadow: 0 4px 15px rgba(31,36,41,0.35);
 transition: all 0.2s;
 letter-spacing: 0.2px;
 }
-.btn-enviado:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(0,87,58,0.45); }
+.btn-enviado:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(31,36,41,0.45); }
 .btn-pular {
 flex: 1;
 padding: 16px 10px;
@@ -179,10 +179,10 @@ text-align: center;
 }
 .countdown-bar.visible { display: block; }
 .countdown-fill-wrap { background: var(--borda); border-radius: 20px; height: 6px; overflow:hidden; margin-top:6px; }
-.countdown-fill { height:100%; background: linear-gradient(90deg, var(--verde), #34A853); border-radius:20px; transition: width 1s linear; }
+.countdown-fill { height:100%; background: linear-gradient(90deg, var(--verde), #4A8BE0); border-radius:20px; transition: width 1s linear; }
 .progress-section { display: none; }
 .progress-bar-wrap { background:var(--borda); border-radius:20px; height:12px; overflow:hidden; margin:10px 0; }
-.progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--verde),#34A853); border-radius:20px; transition:width 0.4s ease; width:0%; }
+.progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--verde),#4A8BE0); border-radius:20px; transition:width 0.4s ease; width:0%; }
 .progress-label { display:flex; justify-content:space-between; font-size:0.75rem; color:var(--texto-suave); }
 .clipboard-hint { display:none; background:#FFF8E1; border:1px solid #FFE082; border-radius:8px; padding:8px 12px; font-size:0.75rem; color:#E65100; margin-top:8px; line-height:1.5; }
 .log-box { background:#0D1117; border-radius:8px; padding:12px; height:100px; overflow-y:auto; font-family:'Courier New',monospace; font-size:0.72rem; color:#58A6FF; margin-top:10px; }
@@ -214,7 +214,7 @@ text-align: center;
 <div class="header">
 <div class="header-logo">🚀</div>
 <div>
-<h1>Disparador CrediAmigo</h1>
+<h1>Disparador de Mensagens</h1>
 <p id="subtitulo">Campanha de recuperação de ex-clientes via WhatsApp</p>
 </div>
 <div class="header-badge" id="statusBadge">⬤ Aguardando</div>
@@ -246,7 +246,7 @@ text-align: center;
 <label style="font-size:0.78rem;font-weight:700;color:var(--texto-suave);display:block;margin-bottom:4px;">Telefones (um por linha, com DDD)</label>
 <textarea id="inputTel" placeholder="Ex:&#10;73999991111&#10;71988882222" style="width:100%;height:120px;padding:9px 12px;border:1.5px solid var(--borda);border-radius:8px;font-size:0.85rem;outline:none;resize:vertical;font-family:monospace;" onfocus="this.style.borderColor='var(--verde)'" onblur="this.style.borderColor='var(--borda)'"></textarea>
 </div>
-<button onclick="adicionarManual()" style="width:100%;padding:11px;background:linear-gradient(135deg,var(--verde),var(--verde-escuro));color:white;border:none;border-radius:8px;font-size:0.9rem;font-weight:700;cursor:pointer;">➕ Adicionar à Lista</button>
+<button onclick="adicionarManual()" style="width:100%;padding:11px;background:var(--verde);color:white;border:none;border-radius:8px;font-size:0.9rem;font-weight:700;cursor:pointer;">➕ Adicionar à Lista</button>
 <div id="msgManual" style="display:none;margin-top:8px;padding:8px 12px;border-radius:8px;font-size:0.8rem;"></div>
 </div>
 </div>
@@ -429,8 +429,8 @@ text-align: center;
 </div>
 </div>
 </div>
-<div style="background:#00875A;color:rgba(255,255,255,0.85);text-align:center;padding:12px 20px;font-size:0.72rem;letter-spacing:0.3px;margin-top:8px;">
-🛡️ <strong style="color:white;">Disparador CrediAmigo Oficial</strong> — Desenvolvido por <strong style="color:#FFD700;">Edno Rotondano Borges</strong> · Coordenador CrediAmigo / Banco do Nordeste · Jequié-BA &nbsp;|&nbsp; © 2026<br>Usos contados de forma anônima, sem nomes nem telefones de clientes.
+<div style="background:#1F2429;color:rgba(255,255,255,0.85);text-align:center;padding:12px 20px;font-size:0.72rem;letter-spacing:0.3px;margin-top:8px;">
+Desenvolvido por <strong style="color:#FFD700;">Edno Rotondano Borges</strong> · Jequié-BA &nbsp;|&nbsp; © 2026<span id="avisoRegistro" style="display:none;"><br>Usos contados de forma anônima, sem nomes nem telefones de clientes.</span>
 </div>
 <script>
 // ===== REGISTRO DE USO (anônimo) =====
@@ -1124,6 +1124,7 @@ function mostrarInfo(msg) {
   el.textContent = msg; el.style.display = 'block';
   setTimeout(()=>el.style.display='none', 4000);
 }
+if (URL_REGISTRO) document.getElementById('avisoRegistro').style.display = 'inline';
 carregarRemetente();
 selecionarCampanha('recuperacao');
 registrar('abertura');
