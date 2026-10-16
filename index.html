@@ -305,6 +305,7 @@ text-align: center;
 <button id="tabCamp_atraso30" onclick="selecionarCampanha('atraso30')" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.72rem;font-weight:700;cursor:pointer;">⏰ Atraso até 30 dias</button>
 <button id="tabCamp_risco" onclick="selecionarCampanha('risco')" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.72rem;font-weight:700;cursor:pointer;">🚨 Risco +31 dias</button>
 <button id="tabCamp_desenrola" onclick="selecionarCampanha('desenrola')" style="flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.72rem;font-weight:700;cursor:pointer;">🤝 Desenrola</button>
+<button id="tabCamp_oferta" onclick="selecionarCampanha('oferta')" style="grid-column:1 / -1;flex:1;padding:8px 4px;border-radius:8px;border:2px solid var(--borda);background:white;color:var(--texto-suave);font-size:0.72rem;font-weight:700;cursor:pointer;">💎 Oferta individual</button>
 </div>
 <div class="camp-desc" id="campDesc"></div>
 <div class="config-row" style="margin-bottom:10px;gap:10px;">
@@ -330,7 +331,6 @@ text-align: center;
 <span class="var-chip" onclick="inserirVar('{VALOR}')">{VALOR}</span>
 <span class="var-chip" onclick="inserirVar('{ATRASO}')">{ATRASO}</span>
 <span class="var-chip" onclick="inserirVar('{OPERACAO}')">{OPERACAO}</span>
-<span class="var-chip" onclick="inserirVar('{SAUDACAO}')">{SAUDACAO}</span>
 <span class="var-chip" onclick="inserirVar('{REMETENTE}')">{REMETENTE}</span>
 <span class="var-chip" onclick="inserirVar('{TELEFONE}')">{TELEFONE}</span>
 <div style="margin-top:6px;color:#5A6475;">Linhas com {VALOR} ou {ATRASO} somem sozinhas para contatos sem esses dados (ex.: adicionados manualmente).</div>
@@ -497,37 +497,35 @@ _*Condições sujeitas à análise de crédito._`
     descricao: 'Lembrete firme e respeitoso para operações com até 30 dias de atraso, ainda sem migração para o risco. Planilha: nome, telefone, dias em atraso e número da operação.',
     faixa: [1, 30],
     modelos: [
-`Bom dia, *{PRIMEIRO_NOME}*! 👋
-Estamos entrando em contato do CrediAmigo sobre a sua operação, que está com parcela em atraso.
-📌 Operação nº *{OPERACAO}*
-⏳ Tempo em atraso: *{ATRASO}*
-Pedimos que regularize o pagamento ainda hoje, para evitar que o atraso avance. 🙏
-Se estiver com alguma dificuldade, me chame que a gente conversa.
-_Se esta mensagem não for para você, desconsidere._`,
-`Bom dia, *{PRIMEIRO_NOME}*! Tudo bem?
-Passando para avisar que a sua operação no CrediAmigo está com pendência.
+`Olá, *{PRIMEIRO_NOME}*! 👋
+Passando para lembrar de uma parcela em aberto no CrediAmigo.
 📌 Operação nº *{OPERACAO}*
 ⏳ Atraso: *{ATRASO}*
-É importante regularizar a parcela o quanto antes. Qualquer dificuldade, é só me avisar. 💚
+Consegue regularizar ainda hoje? Assim o atraso não avança. 🙏
 _Se esta mensagem não for para você, desconsidere._`,
-`Bom dia, *{PRIMEIRO_NOME}*!
-Lembrete do CrediAmigo: há uma parcela em atraso na sua operação.
+`Oi, *{PRIMEIRO_NOME}*! Tudo bem?
+Identificamos que a sua operação ainda está com pagamento pendente.
 📌 Nº *{OPERACAO}*
 ⏳ Atraso: *{ATRASO}*
-Se já realizou o pagamento, pode me enviar o comprovante por aqui. Se ainda não, pedimos a regularização hoje. 🙏
+Se precisar de um boleto atualizado, é só me avisar que envio na hora. 💚
 _Se esta mensagem não for para você, desconsidere._`,
-`Bom dia, *{PRIMEIRO_NOME}*! Tudo bem?
-Estamos retomando o contato sobre a sua operação no CrediAmigo:
-📌 Nº *{OPERACAO}*
-⏳ Atraso: *{ATRASO}*
-O pagamento ainda não foi identificado. Caso precise de um boleto atualizado, é só me avisar.
-Se tiver alguma dificuldade, fale comigo antes do vencimento para conversarmos. 🤝
-_Se esta mensagem não for para você, desconsidere._`,
-`Bom dia, *{PRIMEIRO_NOME}*! 😊
-Sabemos que imprevistos acontecem, mas a sua operação no CrediAmigo está com parcela em atraso.
+`*{PRIMEIRO_NOME}*, tudo bem?
+Sei que imprevistos acontecem, por isso estou avisando antes que o atraso aumente.
 📌 Operação nº *{OPERACAO}*
 ⏳ Atraso: *{ATRASO}*
-Pedimos a regularização antes que o atraso avance. Se precisar de ajuda para resolver, fale comigo. 💚
+Vamos resolver? Se estiver com alguma dificuldade, fale comigo que conversamos. 🤝
+_Se esta mensagem não for para você, desconsidere._`,
+`Olá, *{PRIMEIRO_NOME}*! 😊
+Seu pagamento no CrediAmigo ainda não foi identificado.
+📌 Nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+Se já pagou, me envie o comprovante por aqui. Se ainda não, peço que regularize hoje. 🙏
+_Se esta mensagem não for para você, desconsidere._`,
+`Oi, *{PRIMEIRO_NOME}*! Tudo bem?
+Estou entrando em contato porque há uma pendência na sua operação:
+📌 Operação nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+Regularizar agora evita que a situação se complique. Qualquer dúvida, estou à disposição. 💚
 _Se esta mensagem não for para você, desconsidere._`
     ]
   },
@@ -536,37 +534,41 @@ _Se esta mensagem não for para você, desconsidere._`
     descricao: 'Cobrança firme para operações que migraram para o risco (31 dias ou mais). Cita as medidas de cobrança previstas em contrato; confirme com a empresa que elas valem para o caso antes de usar.',
     faixa: [31, 100000],
     modelos: [
-`⚠️ *CREDIAMIGO — COBRANÇA*
-Bom dia, *{PRIMEIRO_NOME}*!
-A sua operação está com atraso superior a 30 dias:
-📌 Operação nº *{OPERACAO}*
-⏳ Tempo em atraso: *{ATRASO}*
-É necessária a regularização o quanto antes. Sem ela, podem ser adotadas as medidas de cobrança previstas em contrato, como negativação e protesto.
-Se estiver com dificuldade, fale comigo para encontrarmos a melhor forma de resolver. 🤝
-_Se esta mensagem não for para você, desconsidere._`,
-`Bom dia, *{PRIMEIRO_NOME}*. Estamos entrando em contato, do CrediAmigo, para a regularização da sua operação.
+`⚠️ *COBRANÇA — CREDIAMIGO*
+Olá, *{PRIMEIRO_NOME}*.
+Sua operação está com atraso superior a 30 dias:
 📌 Operação nº *{OPERACAO}*
 ⏳ Atraso: *{ATRASO}*
-É necessário pagar a parcela mais antiga *hoje*. Sem a regularização, poderão ser adotadas as medidas cabíveis.
-Aguardo a confirmação do pagamento. Se tiver dificuldade, fale comigo antes. 🙏
+É urgente regularizar. Sem o pagamento, podem ser adotadas as medidas de cobrança previstas em contrato, como negativação e protesto.
+Procure-me hoje e vamos buscar a melhor forma de resolver. 🤝
 _Se esta mensagem não for para você, desconsidere._`,
-`Bom dia, *{PRIMEIRO_NOME}*! Estamos retomando o contato do CrediAmigo sobre a operação abaixo:
+`*{PRIMEIRO_NOME}*, atenção.
+⚠️ *Aviso importante* sobre a sua operação no CrediAmigo:
 📌 Nº *{OPERACAO}*
 ⏳ Atraso: *{ATRASO}*
-O pagamento anterior não foi identificado. Se precisar de um boleto atualizado, me avise que envio para você pagar ainda hoje.
-Evitar que a situação avance é o melhor caminho para você. Se precisar conversar, fale comigo antes do vencimento. 💚
+A pendência continua em aberto e o caso pode seguir para as providências previstas em contrato.
+Queremos evitar isso. Regularize *hoje* ou venha à unidade para negociarmos. 🙏
 _Se esta mensagem não for para você, desconsidere._`,
-`Bom dia, *{PRIMEIRO_NOME}*!
-⚠️ *Aviso importante do CrediAmigo* sobre a sua operação:
+`Olá, *{PRIMEIRO_NOME}*.
+Já tentamos contato sobre a sua operação e ainda não houve retorno:
+📌 Operação nº *{OPERACAO}*
+⏳ Atraso: *{ATRASO}*
+Seu nome pode ser afetado se a situação continuar. Ainda dá tempo de resolver: me responda hoje e envio o boleto atualizado. 💚
+_Se esta mensagem não for para você, desconsidere._`,
+`⚠️ *ÚLTIMO AVISO AMIGÁVEL*
+*{PRIMEIRO_NOME}*, tudo bem?
+Sua operação no CrediAmigo segue sem pagamento:
 📌 Nº *{OPERACAO}*
 ⏳ Atraso: *{ATRASO}*
-Como a pendência ainda não foi regularizada, o contrato pode ser encaminhado para as medidas previstas, como negativação e protesto.
-Queremos evitar isso. Regularize até *hoje* ou procure a unidade para negociarmos. 🤝
+Quanto mais o tempo passa, maiores ficam os encargos e o risco de medidas como protesto e restrição de crédito.
+Resolva agora comigo, antes que isso aconteça. 🤝
 _Se esta mensagem não for para você, desconsidere._`,
-`Bom dia, *{PRIMEIRO_NOME}*! Tentamos contato do CrediAmigo sobre a sua operação e ainda não tivemos retorno:
-📌 Nº *{OPERACAO}*
+`Olá, *{PRIMEIRO_NOME}*.
+Atenção: a sua operação está no risco por atraso prolongado.
+📌 Operação nº *{OPERACAO}*
 ⏳ Atraso: *{ATRASO}*
-Ainda dá para buscar uma solução juntos. Procure a unidade ou fale comigo hoje mesmo para regularizar. 💚
+Para evitar negativação, protesto ou outras medidas previstas em contrato, é preciso regularizar o quanto antes.
+Estou à disposição hoje para ajudar a achar uma saída. 🙏
 _Se esta mensagem não for para você, desconsidere._`
     ]
   },
@@ -605,6 +607,43 @@ O seu nome está entre os clientes que podem *aderir ao Desenrola* e quitar a d�
 Quanto antes aderir, mais rápido você resolve a pendência e abre caminho para novas oportunidades. 📈
 📲 Responda *SIM* e nossa equipe entra em contato.
 _*Condições sujeitas às regras vigentes do programa, ao prazo de adesão e à análise do seu contrato._`
+    ]
+  },
+  oferta: {
+    subtitulo: 'Oferta individual — convite para nova operação de crédito',
+    descricao: 'Convite exclusivo para o cliente contratar uma operação individual. Crédito de até R$ 21.000 (valor máximo). Planilha: só nome e telefone. Público: clientes sem atraso nas últimas operações.',
+    modelos: [
+`💎 *SELECIONADO A DEDO PARA VOCÊ* 💎
+Olá, *{NOME}*! 👋
+Você *pagou em dia* as suas últimas operações e isso abriu uma porta *exclusiva* no *CrediAmigo*:
+🔥 *Juros reduzidos e diferenciados*, a partir de *0,89% a.m.**
+📆 *Prazos maiores* para pagar
+💰 Crédito de até *R$ 21.000*
+📦 Mercadoria, capital de giro, reforma do seu comércio, equipamentos e investimento fixo
+⚡ Análise rápida e atendimento prioritário
+Poucos clientes recebem esse convite. 🤝
+📲 Responda *QUERO* e fazemos a sua simulação sem compromisso.
+_*Taxa a partir de 0,89% a.m., sujeita à consulta das condições e à análise de crédito. Prazos e valores conforme o seu perfil._`,
+`🚀 *{NOME}*, a sua pontualidade valeu a pena!
+Por não ter atraso nas últimas operações, você entrou na lista de *clientes selecionados* do *CrediAmigo — Banco do Nordeste*. 🎯
+O que você pode conquistar:
+🔥 *Juros reduzidos e diferenciados*, a partir de *0,89% a.m.**
+📆 *Mais prazo* para pagar
+💰 Crédito de até *R$ 21.000*
+🏪 Comprar mais mercadoria, reformar o seu comércio ou atividade, adquirir equipamentos e muito mais
+⏳ *Convite por tempo limitado!*
+Responda *EU QUERO* e nossa equipe entra em contato com a sua proposta. 📲
+_*Taxa a partir de 0,89% a.m., sujeita à consulta das condições e à análise de crédito. Prazos e valores conforme o seu perfil._`,
+`🔔 *{NOME}, convite exclusivo!*
+Poucos clientes foram escolhidos e *você é um deles*. 🌟
+Cliente que mantém as operações em dia merece condição melhor — por isso liberamos para você uma *oferta individual*:
+✔️ *Juros reduzidos e diferenciados*, a partir de *0,89% a.m.**
+✔️ *Prazos ampliados*
+✔️ Crédito de até *R$ 21.000*
+✔️ Para *estoque, capital de giro, investimento fixo, reforma e equipamentos*
+Quem responde primeiro garante o atendimento prioritário. ⏰
+📲 Responda *SIM* e fazemos a sua simulação agora mesmo.
+_*Taxa a partir de 0,89% a.m., sujeita à consulta das condições e à análise de crédito. Prazos e valores conforme o seu perfil._`
     ]
   }
 };
